@@ -1,4 +1,3 @@
-
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 from src.state import SupportState
@@ -12,7 +11,7 @@ from src.agents import (
 def build_support_graph():
     builder = StateGraph(SupportState)
 
-    # Nodes add karo
+    # Add nodes
     builder.add_node("router", router_node)
     builder.add_node("billing_agent", billing_agent_node)
     builder.add_node("tech_agent", tech_agent_node)
@@ -45,7 +44,7 @@ def build_support_graph():
     builder.add_edge("tech_agent", END)
     builder.add_edge("general_agent", END)
 
-    # Memory Checkpointer attach kar rahe hain
+    # Attaching Memory Checkpointer
     memory = MemorySaver()
     
     # Human-in-the-loop: Interrupt before execution completes if approval needed
