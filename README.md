@@ -62,18 +62,25 @@ Follow these steps to run the application locally on your machine:
 ```bash
 git clone [https://github.com/tanishatfil-crypto/Multi-Agent-Support-Desk.git](https://github.com/tanishatfil-crypto/Multi-Agent-Support-Desk.git)
 cd Multi-Agent-Support-Desk
-
-### 2. Create a Virtual Environment (Recommended)
-
+```
+### 2. Create a Virtual Environment
+```bash 
 python -m venv venv
+```
 # On Windows:
+```bash
 venv\Scripts\activate
+```
 # On Mac/Linux:
+```bash
 source venv/bin/activate
-3. Install Dependencies
-Bash
+```
+### 3. Install Dependencies
+```bash
 pip install -r requirements.txt
-4. Configure Environment Variables
+```
+### 4. Configure Environment Variables
+```bash 
 Create a .env file in the root directory and add your API keys:
 
 Code snippet
@@ -81,8 +88,9 @@ GOOGLE_API_KEY=your_gemini_api_key_here
 LANGFUSE_PUBLIC_KEY=your_langfuse_public_key_here
 LANGFUSE_SECRET_KEY=your_langfuse_secret_key_here
 LANGFUSE_HOST=[https://cloud.langfuse.com](https://cloud.langfuse.com)
-5. Run the Application
-Bash
+```
+### 5. Run the Application
+```bash
 streamlit run app.py
 Open your browser at http://localhost:8502 to interact with the support desk!
 
