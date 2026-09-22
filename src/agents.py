@@ -7,7 +7,7 @@ load_dotenv()
 
 # Set model to required gemini-3.6-flash
 llm = ChatGoogleGenerativeAI(
-    model="gemini-3.5-flash",
+    model="gemini-3.6-flash", 
     google_api_key=os.getenv("GEMINI_API_KEY"),
     temperature=0.2
 )
@@ -46,14 +46,20 @@ def router_node(state: SupportState):
     }
 
 def billing_agent_node(state: SupportState):
-    user_msg = state["messages"][-1]["content"] if isinstance(state["messages"][-1], dict) else state["messages"][-1].content
+    # Check karo ki human ne approve kiya hai ya nahi
+    if state.get("requires_human_approval") and not state.get("human_approved", False):
+        return {
+            "messages": [{"role": "assistant", "content": "This refund request requires manager approval before it can be processed."}],
+            "resolution": "Waiting for Manager Approval"
+        }
     
+    user_msg = state["messages"][-1]["content"] if isinstance(state["messages"][-1], dict) else state["messages"][-1].content
     prompt = f"You are an empathetic Billing Support Agent. Handle this billing issue professionally:\nQuery: {user_msg}"
     response = llm.invoke(prompt)
     clean_text = extract_text(response)
         
     return {
-        "messages": state["messages"] + [{"role": "assistant", "content": clean_text}],
+        "messages": [{"role": "assistant", "content": clean_text}],
         "resolution": "Processed by Billing Agent (Approved)"
     }
 
@@ -65,7 +71,7 @@ def tech_agent_node(state: SupportState):
     clean_text = extract_text(response)
 
     return {
-        "messages": state["messages"] + [{"role": "assistant", "content": clean_text}],
+        "messages": [{"role": "assistant", "content": clean_text}],
         "resolution": "Resolved by Tech Support Agent"
     }
 
@@ -77,6 +83,6 @@ def general_agent_node(state: SupportState):
     clean_text = extract_text(response)
 
     return {
-        "messages": state["messages"] + [{"role": "assistant", "content": clean_text}],
+        "messages": [{"role": "assistant", "content": clean_text}],
         "resolution": "Answered by General Agent"
     }

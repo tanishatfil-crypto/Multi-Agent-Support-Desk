@@ -1,4 +1,5 @@
 import os
+import uuid
 import streamlit as st
 from dotenv import load_dotenv
 from langfuse.langchain import CallbackHandler
@@ -55,6 +56,24 @@ st.markdown("""
     .stAlert {
         border-radius: 10px;
     }
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: bold;
+        display: inline-block;
+        margin-bottom: 4px;
+    }
+    .badge-green {
+        background-color: #13231c;
+        color: #34D399;
+        border: 1px solid #065F46;
+    }
+    .badge-blue {
+        background-color: #1e293b;
+        color: #38BDF8;
+        border: 1px solid #1E40AF;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -67,7 +86,7 @@ app = get_graph()
 
 # --- Session State Management ---
 if "thread_id" not in st.session_state:
-    st.session_state.thread_id = "ui_session_101"
+    st.session_state.thread_id = str(uuid.uuid4())
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -88,7 +107,7 @@ with st.sidebar:
     
     st.markdown("**Engine Status**")
     st.markdown('<span class="status-badge badge-green">● Active Nodes Online</span>', unsafe_allow_html=True)
-    st.markdown('<span class="status-badge badge-blue">Model: gemini-3.5-flash</span>', unsafe_allow_html=True)
+    st.markdown('<span class="status-badge badge-blue">Model: gemini-3.6-flash</span>', unsafe_allow_html=True)
     
     st.markdown("---")
     st.markdown("**Session Configuration**")
@@ -187,29 +206,40 @@ if st.session_state.awaiting_approval:
     
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("✅ Approve Refund Request", type="primary", use_container_width=True):
+        if st.button("✅ Authorize Refund", use_container_width=True):
             st.session_state.awaiting_approval = False
             try:
-                with st.spinner("Executing approved resolution..."):
+                with st.spinner("Processing authorization..."):
+                    app.update_state(config, {"human_approved": True}, as_node="billing_agent")
                     events = app.stream(None, config, stream_mode="values")
                     for event in events:
                         pass
+                
+                # Put last message in chat
                 snapshot = app.get_state(config)
                 state_data = snapshot.values
                 if "messages" in state_data and state_data["messages"]:
                     last_msg = state_data["messages"][-1]
                     text = get_clean_string(last_msg)
                     st.session_state.messages.append({"role": "assistant", "content": text})
-                st.rerun()
             except Exception as e:
-                if "RESOURCE_EXHAUSTED" in str(e) or "429" in str(e):
-                    st.error("⏳ **Rate Limit Hit!** Please wait ~30 seconds before approving.")
-                else:
-                    st.error(f"Error during approval execution: {e}")
+                st.error(f"Error processing approval: {e}")
+                
+            st.success("Refund approved and processed!")
+            st.rerun()
 
     with col2:
         if st.button("❌ Reject Request", use_container_width=True):
             st.session_state.awaiting_approval = False
+            try:
+                with st.spinner("Processing rejection..."):
+                    app.update_state(config, {"human_approved": False}, as_node="billing_agent")
+                    events = app.stream(None, config, stream_mode="values")
+                    for event in events:
+                        pass
+            except Exception as e:
+                pass
+                
             st.session_state.messages.append({
                 "role": "assistant", 
                 "content": "Your refund request was reviewed by a support manager and cannot be processed at this time."

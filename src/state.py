@@ -10,6 +10,7 @@ class SupportState(TypedDict):
     
     # Flag: Approval needed from Human Manager or not
     requires_human_approval: bool
+    human_approved: bool
     
     # Final ticket output summary
     resolution: str
