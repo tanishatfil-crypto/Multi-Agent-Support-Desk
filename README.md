@@ -5,6 +5,7 @@ A production-grade, multi-agent customer support system built with **LangGraph**
 ---
 
 ## 🏗️ Architecture Flow
+```text
 [User Input via Streamlit UI]
              │
              ▼
@@ -32,7 +33,7 @@ Agent    Agent           │
              │
              ▼
 [Response Rendered back to Streamlit UI]
-
+```
 ---
 
 ## 🚀 Key Features
@@ -84,7 +85,7 @@ pip install -r requirements.txt
 Create a .env file in the root directory and add your API keys:
 
 Code snippet
-GOOGLE_API_KEY=your_gemini_api_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 LANGFUSE_PUBLIC_KEY=your_langfuse_public_key_here
 LANGFUSE_SECRET_KEY=your_langfuse_secret_key_here
 LANGFUSE_HOST=[https://cloud.langfuse.com](https://cloud.langfuse.com)
